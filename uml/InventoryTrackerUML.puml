@@ -1,0 +1,36 @@
+@startuml
+
+class InventoryTracker {
+    main()
+    start()
+}
+
+class InventoryController {
+    items: ItemModel
+}
+
+class ItemModel {
+    - ObservableList<Item> list
+}
+
+class Item {
+    - name: SimpleStringProperty
+    - serialNumber: SimpleStringProperty
+    - price: BigDecimal
+
+    + getName()
+    + setName()
+    + nameProperty()
+    + getSerialNumber()
+    + setSerialNumber()
+    + serialNumberProperty()
+    + getPrice()
+    + setPrice()
+}
+
+javafx.application <|-- InventoryTracker
+InventoryTracker -- InventoryController
+InventoryController o-- ItemModel
+ItemModel *-- Item
+
+@enduml
