@@ -13,7 +13,7 @@ public class ItemModel {
     public class Item {
         private StringProperty name;
         private StringProperty serialNumber;
-        private BigDecimal price = new BigDecimal(0);
+        private BigDecimal price;
 
        public void setName(String value) {
            nameProperty().set(value);
@@ -37,6 +37,14 @@ public class ItemModel {
             if (serialNumber == null)
                 serialNumber = new SimpleStringProperty(this, "serialNumber");
             return serialNumber;
+        }
+
+        public void setPrice(String value) {
+           price = new BigDecimal(value);
+        }
+
+        public String getPrice() {
+            return (String.valueOf(price));
         }
     }
 }
