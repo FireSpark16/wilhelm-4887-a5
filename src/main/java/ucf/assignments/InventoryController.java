@@ -2,59 +2,107 @@ package ucf.assignments;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TextField;
+import javafx.fxml.Initializable;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 
+import java.net.URL;
 import java.util.Locale;
+import java.util.ResourceBundle;
 
-public class InventoryController {
+public class InventoryController implements Initializable {
 
     ItemModel itemModel = new ItemModel();
+    ItemModel.Item selected = null;
 
     // FXML Components
     @FXML
-    private TableColumn<?, ?> priceColumn;
+    private TableView table;
 
     @FXML
-    private TableColumn<?, ?> serialNumberColumn;
+    private TableColumn<ItemModel.Item, String> priceColumn;
 
     @FXML
-    private TableColumn<?, ?> nameColumn;
+    private TableColumn<ItemModel.Item, String> serialNumberColumn;
 
     @FXML
-    private TableColumn<?, ?> deleteColumn;
+    private TableColumn<ItemModel.Item, String> nameColumn;
+
+    @FXML
+    private TabPane tabPane;
+
+    @FXML
+    private Tab addTab;
+
+    @FXML
+    private Tab editTab;
+
+    @FXML
+    private Tab deleteTab;
 
     @FXML
     private TextField messageBox;
 
     @FXML
-    private TextField itemPriceBox;
+    private TextField priceAddBox;
 
     @FXML
-    private TextField itemSerialNumberBox;
+    private TextField serialNumberAddBox;
 
     @FXML
-    private TextField itemNameBox;
+    private TextField nameAddBox;
+
+    @FXML
+    private TextField priceEditBox;
+
+    @FXML
+    private TextField serialNumberEditBox;
+
+    @FXML
+    private TextField nameEditBox;
+
+    @FXML
+    private TextField priceDeleteBox;
+
+    @FXML
+    private TextField serialNumberDeleteBox;
+
+    @FXML
+    private TextField nameDeleteBox;
 
     @FXML
     void addItemClicked() {
-        String price = removeMoneySign(getItemPriceBox());
-        String serialNumber = setToCaps(getItemSerialNumberBox());
-        String name = getItemNameBox();
+        String price = fixPrice(getPriceAddBox());
+        String serialNumber = setToCaps(getSerialNumberAddBox());
+        String name = getNameAddBox();
 
         int priceCheck = priceCheck(price);
         int serialNumberCheck = serialNumberCheck(serialNumber);
         int nameCheck = nameCheck(name);
         if (priceCheck == 0 && serialNumberCheck == 0 && nameCheck == 0) {
             boolean addCheck = addItem(price, serialNumber, name);
-            if (addCheck == true)
-                setMessageBox("Item successfully added. ");
+            if (addCheck == true) {
+                setMessageBox("Item successfully added.");
+                table.getItems().add(itemModel.list.get(itemModel.list.size() - 1));
+                clearAddBoxes();
+            }
             else
                 setMessageBox("Too many items in list. You can only hold 100 items.");
         } else {
             String errorCode = addItemErrorCode(priceCheck, serialNumberCheck, nameCheck);
             setMessageBox(errorCode);
         }
+    }
+
+    @FXML
+    void deleteItemClicked(ActionEvent event) {
+
+    }
+
+    @FXML
+    void editItemClicked(ActionEvent event) {
+
     }
 
     @FXML
@@ -72,31 +120,83 @@ public class InventoryController {
 
     }
 
-    // Getter and Setter Methods
-    private String getMessageBox() {
-        return messageBox.getText();
+    // Initialize the Table
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
+        serialNumberColumn.setCellValueFactory(new PropertyValueFactory<>("serialNumber"));
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+    }
+
+    // FXML Support Methods
+    public void updateSelected(MouseEvent mouseEvent) {
+        selected = (ItemModel.Item) table.getSelectionModel().getSelectedItem();
+        updateTabs();
+    }
+
+    private void updateTabs() {
+        if (selected != null) {
+            editTab.setDisable(false);
+            deleteTab.setDisable(false);
+            priceEditBox.setText(selected.getPrice());
+            serialNumberEditBox.setText(selected.getSerialNumber());
+            nameEditBox.setText(selected.getName());
+            priceDeleteBox.setText(selected.getPrice());
+            serialNumberDeleteBox.setText(selected.getSerialNumber());
+            nameDeleteBox.setText(selected.getName());
+        } else {
+            editTab.setDisable(true);
+            deleteTab.setDisable(true);
+            tabPane.getSelectionModel().select(addTab);
+            clearEditBoxes();
+            clearDeleteBoxes();
+        }
+    }
+
+    private void clearAddBoxes() {
+        priceAddBox.setText("");
+        serialNumberAddBox.setText("");
+        nameAddBox.setText("");
+    }
+
+    private void clearEditBoxes() {
+        priceEditBox.setText("");
+        serialNumberEditBox.setText("");
+        nameEditBox.setText("");
+    }
+
+    private void clearDeleteBoxes() {
+        priceDeleteBox.setText("");
+        serialNumberDeleteBox.setText("");
+        nameDeleteBox.setText("");
     }
 
     private void setMessageBox(String input) {
         messageBox.setText(input);
     }
-    private String getItemPriceBox() {
-        return itemPriceBox.getText();
+
+    private String getPriceAddBox() {
+        return priceAddBox.getText();
     }
 
-    private String getItemSerialNumberBox() {
-        return itemSerialNumberBox.getText();
+    private String getSerialNumberAddBox() {
+        return serialNumberAddBox.getText();
     }
 
-    private String getItemNameBox() {
-        return itemNameBox.getText();
+    private String getNameAddBox() {
+        return nameAddBox.getText();
     }
 
     // Non-FXML Testable Methods
-    public String removeMoneySign(String itemPriceBox) {
-        if(itemPriceBox.charAt(0) == '$')
-            return itemPriceBox.substring(1);
-        return itemPriceBox;
+    public String fixPrice(String itemPriceBox) {
+        String newPrice = itemPriceBox;
+        if (itemPriceBox.charAt(0) == '$')
+            // Remove dollar sign
+            newPrice = newPrice.substring(1);
+        if (newPrice.length() < 4 ||newPrice.charAt(newPrice.length() - 3) != '.')
+            // Add cent amount
+            newPrice += ".00";
+        return newPrice;
     }
 
     public String setToCaps(String itemSerialNumberBox) {
@@ -193,6 +293,7 @@ public class InventoryController {
     public void createNewList() {
         itemModel = new ItemModel();
     }
+
 
 }
 

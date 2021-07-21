@@ -4,6 +4,8 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
@@ -11,14 +13,14 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Font?>
 
+
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ucf.assignments.InventoryController">
    <center>
-      <TableView prefHeight="200.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+      <TableView fx:id="table" onMouseClicked="#updateSelected" prefHeight="200.0" prefWidth="600.0" BorderPane.alignment="CENTER">
         <columns>
-          <TableColumn fx:id="priceColumn" prefWidth="175.0" text="Price" />
-          <TableColumn fx:id="serialNumberColumn" prefWidth="175.0" text="Serial Number" />
-            <TableColumn fx:id="nameColumn" prefWidth="175.0" text="Name" />
-            <TableColumn fx:id="deleteColumn" minWidth="0.0" prefWidth="72.66668701171875" text="(Delete)" />
+          <TableColumn fx:id="priceColumn" prefWidth="200.0" text="Price" />
+          <TableColumn fx:id="serialNumberColumn" prefWidth="200.0" text="Serial Number" />
+            <TableColumn fx:id="nameColumn" prefWidth="197.0" text="Name" />
         </columns>
       </TableView>
    </center>
@@ -26,47 +28,107 @@
       <HBox prefHeight="50.0" prefWidth="600.0" BorderPane.alignment="CENTER">
          <MenuButton maxHeight="1.7976931348623157E308" mnemonicParsing="false" text="File">
             <items>
-               <MenuItem mnemonicParsing="false" onAction="#newButtonClicked" text="New"/>
-               <MenuItem mnemonicParsing="false" onAction="#loadButtonClicked" text="Load"/>
-               <MenuItem mnemonicParsing="false" onAction="#saveButtonClicked" text="Save"/>
+               <MenuItem mnemonicParsing="false" onAction="#newButtonClicked" text="New" />
+               <MenuItem mnemonicParsing="false" onAction="#loadButtonClicked" text="Load" />
+               <MenuItem mnemonicParsing="false" onAction="#saveButtonClicked" text="Save" />
             </items>
          </MenuButton>
-         <TextField fx:id="messageBox" alignment="CENTER" editable="false" prefHeight="50.0" prefWidth="550.0"
-                    style="-fx-border-radius: 0,0,0,0; -fx-background-radius: 0,0,0,0;"
-                    text="Add an item or load a file to get started">
+         <TextField fx:id="messageBox" alignment="CENTER" editable="false" prefHeight="50.0" prefWidth="550.0" style="-fx-border-radius: 0,0,0,0; -fx-background-radius: 0,0,0,0;" text="Add an item or load a file to get started.">
             <HBox.margin>
-               <Insets/>
+               <Insets />
             </HBox.margin>
             <font>
-               <Font size="13.0"/>
+               <Font size="13.0" />
             </font>
          </TextField>
       </HBox>
    </top>
    <bottom>
-      <HBox prefHeight="59.0" prefWidth="600.0" BorderPane.alignment="CENTER">
-         <TextField fx:id="itemPriceBox" alignment="CENTER" maxHeight="1.7976931348623157E308" promptText="Item Price">
-            <HBox.margin>
-               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-            </HBox.margin>
-         </TextField>
-         <TextField fx:id="itemSerialNumberBox" alignment="CENTER" maxHeight="1.7976931348623157E308"
-                    promptText="Item Serial Number">
-            <HBox.margin>
-               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-            </HBox.margin>
-         </TextField>
-         <TextField fx:id="itemNameBox" alignment="CENTER" maxHeight="1.7976931348623157E308" promptText="Item Name">
-            <HBox.margin>
-               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-            </HBox.margin>
-         </TextField>
-         <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                 onAction="#addItemClicked" prefHeight="39.0" prefWidth="110.0" text="Add Item">
-            <HBox.margin>
-               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-            </HBox.margin>
-         </Button>
-      </HBox>
+      <TabPane fx:id="tabPane" BorderPane.alignment="CENTER">
+         <tabs>
+            <Tab fx:id="addTab" closable="false" text="               Add               ">
+               <content>
+                  <HBox prefHeight="59.0" prefWidth="600.0">
+                     <TextField fx:id="priceAddBox" alignment="CENTER" maxHeight="1.7976931348623157E308" promptText="Item Price">
+                        <HBox.margin>
+                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                        </HBox.margin>
+                     </TextField>
+                     <TextField fx:id="serialNumberAddBox" alignment="CENTER" maxHeight="1.7976931348623157E308" promptText="Item Serial Number">
+                        <HBox.margin>
+                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                        </HBox.margin>
+                     </TextField>
+                     <TextField fx:id="nameAddBox" alignment="CENTER" maxHeight="1.7976931348623157E308" promptText="Item Name">
+                        <HBox.margin>
+                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                        </HBox.margin>
+                     </TextField>
+                     <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#addItemClicked" prefHeight="39.0" prefWidth="110.0" text="Add Item">
+                        <HBox.margin>
+                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                        </HBox.margin>
+                     </Button>
+                  </HBox>
+               </content>
+            </Tab>
+            <Tab fx:id="editTab" closable="false" disable="true" text="               Edit               ">
+               <content>
+                  <HBox prefHeight="59.0" prefWidth="600.0">
+                     <children>
+                        <TextField fx:id="priceEditBox" alignment="CENTER" maxHeight="1.7976931348623157E308" promptText="Item Price">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </HBox.margin>
+                        </TextField>
+                        <TextField fx:id="serialNumberEditBox" alignment="CENTER" maxHeight="1.7976931348623157E308" promptText="Item Serial Number">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </HBox.margin>
+                        </TextField>
+                        <TextField fx:id="nameEditBox" alignment="CENTER" maxHeight="1.7976931348623157E308" promptText="Item Name">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </HBox.margin>
+                        </TextField>
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#editItemClicked" prefHeight="39.0" prefWidth="110.0" text="Confirm Edit">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                  </HBox>
+               </content>
+            </Tab>
+            <Tab fx:id="deleteTab" closable="false" disable="true" text="               Delete               ">
+               <content>
+                  <HBox prefHeight="59.0" prefWidth="600.0">
+                     <children>
+                        <TextField fx:id="priceDeleteBox" alignment="CENTER" editable="false" maxHeight="1.7976931348623157E308" promptText="Item Price">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </HBox.margin>
+                        </TextField>
+                        <TextField fx:id="serialNumberDeleteBox" alignment="CENTER" editable="false" maxHeight="1.7976931348623157E308" promptText="Item Serial Number">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </HBox.margin>
+                        </TextField>
+                        <TextField fx:id="nameDeleteBox" alignment="CENTER" editable="false" maxHeight="1.7976931348623157E308" promptText="Item Name">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </HBox.margin>
+                        </TextField>
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#deleteItemClicked" prefHeight="39.0" prefWidth="110.0" text="Delete Item">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                  </HBox>
+               </content>
+            </Tab>
+         </tabs>
+      </TabPane>
    </bottom>
 </BorderPane>

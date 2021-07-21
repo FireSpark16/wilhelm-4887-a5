@@ -18,6 +18,7 @@ public class InventoryTracker extends Application {
         launch(args);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void start(Stage primaryStage) {
         try {

@@ -9,12 +9,14 @@ import static org.junit.jupiter.api.Assertions.*;
 class InventoryControllerTest {
 
     @ParameterizedTest
-    @ValueSource(strings = {"$123.45", "123", "$123456", "123456"})
-    void removeMoneySign(String testStrings) {
+    @ValueSource(strings = {"$123.45", "123", "$123456", "123456", "123.45"})
+    void fixPrice(String testStrings) {
         InventoryController controller = new InventoryController();
-        String withSignRemoved = controller.removeMoneySign(testStrings);
+        String withSignRemoved = controller.fixPrice(testStrings);
         char firstCharacter = withSignRemoved.charAt(0);
+        char decimalPlace = withSignRemoved.charAt(withSignRemoved.length() - 3);
         assertTrue(firstCharacter != '$');
+        assertTrue(decimalPlace == '.');
     }
 
     @ParameterizedTest
