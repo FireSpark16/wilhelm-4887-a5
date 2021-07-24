@@ -11,37 +11,42 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ucf.assignments.InventoryController">
    <center>
       <TableView fx:id="table" onMouseClicked="#updateSelected" prefHeight="200.0" prefWidth="600.0" BorderPane.alignment="CENTER">
         <columns>
-          <TableColumn fx:id="priceColumn" prefWidth="200.0" text="Price" />
+          <TableColumn fx:id="priceColumn" prefWidth="200.0" text="Price (USD)" />
           <TableColumn fx:id="serialNumberColumn" prefWidth="200.0" text="Serial Number" />
             <TableColumn fx:id="nameColumn" prefWidth="197.0" text="Name" />
         </columns>
       </TableView>
    </center>
    <top>
-      <HBox prefHeight="50.0" prefWidth="600.0" BorderPane.alignment="CENTER">
-         <MenuButton maxHeight="1.7976931348623157E308" mnemonicParsing="false" text="File">
-            <items>
-               <MenuItem mnemonicParsing="false" onAction="#newButtonClicked" text="New" />
-               <MenuItem mnemonicParsing="false" onAction="#loadButtonClicked" text="Load" />
-               <MenuItem mnemonicParsing="false" onAction="#saveButtonClicked" text="Save" />
-            </items>
-         </MenuButton>
-         <TextField fx:id="messageBox" alignment="CENTER" editable="false" prefHeight="50.0" prefWidth="550.0" style="-fx-border-radius: 0,0,0,0; -fx-background-radius: 0,0,0,0;" text="Add an item or load a file to get started.">
-            <HBox.margin>
-               <Insets />
-            </HBox.margin>
-            <font>
-               <Font size="13.0" />
-            </font>
-         </TextField>
-      </HBox>
+      <VBox BorderPane.alignment="CENTER">
+         <children>
+            <HBox prefHeight="50.0" prefWidth="600.0">
+               <MenuButton maxHeight="1.7976931348623157E308" mnemonicParsing="false" text="File">
+                  <items>
+                     <MenuItem mnemonicParsing="false" onAction="#newButtonClicked" text="New" />
+                     <MenuItem mnemonicParsing="false" onAction="#loadButtonClicked" text="Load" />
+                     <MenuItem mnemonicParsing="false" onAction="#saveButtonClicked" text="Save" />
+                  </items>
+               </MenuButton>
+               <TextField fx:id="messageBox" alignment="CENTER" editable="false" prefHeight="50.0" prefWidth="550.0" style="-fx-border-radius: 0,0,0,0; -fx-background-radius: 0,0,0,0;" text="Add an item or load a file to get started.">
+                  <HBox.margin>
+                     <Insets />
+                  </HBox.margin>
+                  <font>
+                     <Font size="13.0" />
+                  </font>
+               </TextField>
+            </HBox>
+            <TextField fx:id="searchBox" disable="true" promptText="Search here..." />
+         </children>
+      </VBox>
    </top>
    <bottom>
       <TabPane fx:id="tabPane" BorderPane.alignment="CENTER">

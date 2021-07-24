@@ -1,5 +1,7 @@
 package ucf.assignments;
 
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -12,6 +14,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class InventoryController implements Initializable {
+
 
     ItemModel itemModel = new ItemModel();
     ItemModel.Item selected = null;
@@ -43,6 +46,9 @@ public class InventoryController implements Initializable {
 
     @FXML
     private TextField messageBox;
+
+    @FXML
+    private TextField searchBox;
 
     @FXML
     private TextField priceAddBox;
@@ -84,30 +90,56 @@ public class InventoryController implements Initializable {
             boolean addCheck = addItem(price, serialNumber, name);
             if (addCheck == true) {
                 setMessageBox("Item successfully added.");
-                table.getItems().add(itemModel.list.get(itemModel.list.size() - 1));
+                // table.getItems().add(itemModel.list.get(itemModel.list.size() - 1));
                 clearAddBoxes();
+                updateTabs();
             }
             else
                 setMessageBox("Too many items in list. You can only hold 100 items.");
         } else {
-            String errorCode = addItemErrorCode(priceCheck, serialNumberCheck, nameCheck);
+            String errorCode = itemErrorCode(priceCheck, serialNumberCheck, nameCheck);
             setMessageBox(errorCode);
         }
     }
 
     @FXML
     void deleteItemClicked(ActionEvent event) {
-
+        deleteItem();
+        setMessageBox("Item successfully deleted.");
+        deselect();
+        updateTabs();
     }
 
     @FXML
     void editItemClicked(ActionEvent event) {
+        String price = fixPrice(getPriceEditBox());
+        String serialNumber = setToCaps(getSerialNumberEditBox());
+        String name = getNameEditBox();
 
+        int priceCheck = priceCheck(price);
+        int serialNumberCheck = serialNumberCheck(serialNumber);
+        int nameCheck = nameCheck(name);
+
+        if (serialNumberCheck == 4)
+            serialNumberCheck = 0;
+
+        if (priceCheck == 0 && (serialNumberCheck == 0 || serialNumberCheck == 4) && nameCheck == 0) {
+            editItem(price, serialNumber, name);
+            setMessageBox("Item successfully edited.");
+            deselect();
+            updateTabs();
+        } else {
+            String errorCode = itemErrorCode(priceCheck, serialNumberCheck, nameCheck);
+            setMessageBox(errorCode);
+        }
     }
 
     @FXML
     void newButtonClicked(ActionEvent event) {
         createNewList();
+        setMessageBox("New list created.");
+        deselect();
+        updateTabs();
     }
 
     @FXML
@@ -121,20 +153,48 @@ public class InventoryController implements Initializable {
     }
 
     // Initialize the Table
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
         serialNumberColumn.setCellValueFactory(new PropertyValueFactory<>("serialNumber"));
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-    }
 
+        FilteredList<ItemModel.Item> filteredList = new FilteredList<>(itemModel.list, b -> true);
+        searchBox.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredList.setPredicate(itemModel -> {
+                if (newValue == null || newValue.isEmpty())
+                    return true;
+                String lowerCaseFilter = newValue.toLowerCase();
+                if (String.valueOf(itemModel.getName()).toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                } else if (String.valueOf(itemModel.getPrice()).toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                } else if (String.valueOf(itemModel.getSerialNumber()).toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+        });
+        SortedList<ItemModel.Item> sortedList = new SortedList<>(filteredList);
+        sortedList.comparatorProperty().bind(table.comparatorProperty());
+        table.setItems(sortedList);
+    }
     // FXML Support Methods
+
     public void updateSelected(MouseEvent mouseEvent) {
         selected = (ItemModel.Item) table.getSelectionModel().getSelectedItem();
+        setMessageBox("\"" + selected.getName() + "\" selected.");
         updateTabs();
     }
 
     private void updateTabs() {
+        if (itemModel.list.size() >= 1) {
+            searchBox.setDisable(false);
+        }
+        else
+            searchBox.setDisable(true);
         if (selected != null) {
             editTab.setDisable(false);
             deleteTab.setDisable(false);
@@ -151,6 +211,7 @@ public class InventoryController implements Initializable {
             clearEditBoxes();
             clearDeleteBoxes();
         }
+        table.refresh();
     }
 
     private void clearAddBoxes() {
@@ -183,19 +244,47 @@ public class InventoryController implements Initializable {
         return serialNumberAddBox.getText();
     }
 
+    private String getNameEditBox() {
+        return nameEditBox.getText();
+    }
+
+    private String getPriceEditBox() {
+        return priceEditBox.getText();
+    }
+
+    private String getSerialNumberEditBox() {
+        return serialNumberEditBox.getText();
+    }
+
     private String getNameAddBox() {
         return nameAddBox.getText();
     }
 
     // Non-FXML Testable Methods
+    public void editItem(String price, String serialNumber, String name) {
+        itemModel.list.get(itemModel.list.indexOf(selected)).setPrice(price);
+        itemModel.list.get(itemModel.list.indexOf(selected)).setSerialNumber(serialNumber);
+        itemModel.list.get(itemModel.list.indexOf(selected)).setName(name);
+    }
+
+    public void deleteItem() {
+        itemModel.list.remove(selected);
+    }
+
+    public void deselect() {
+        selected = null;
+    }
+
     public String fixPrice(String itemPriceBox) {
         String newPrice = itemPriceBox;
-        if (itemPriceBox.charAt(0) == '$')
-            // Remove dollar sign
-            newPrice = newPrice.substring(1);
-        if (newPrice.length() < 4 ||newPrice.charAt(newPrice.length() - 3) != '.')
-            // Add cent amount
-            newPrice += ".00";
+        if (newPrice != null && !newPrice.equals("")) {
+            if (itemPriceBox.charAt(0) == '$')
+                // Remove dollar sign
+                newPrice = newPrice.substring(1);
+            if (newPrice.length() < 4 || newPrice.charAt(newPrice.length() - 3) != '.')
+                // Add cent amount
+                newPrice += ".00";
+        }
         return newPrice;
     }
 
@@ -204,7 +293,7 @@ public class InventoryController implements Initializable {
     }
 
     public int priceCheck(String price) {
-        if (price.equals(""))
+        if (price.isEmpty() || price.equals(""))
             // If empty
             return 1;
         int size = price.length();
@@ -219,7 +308,7 @@ public class InventoryController implements Initializable {
     }
 
     public int serialNumberCheck(String serialNumber) {
-        if (serialNumber.equals(""))
+        if (serialNumber.isEmpty() || serialNumber.equals(""))
             // If empty
             return 1;
         int size = serialNumber.length();
@@ -244,7 +333,7 @@ public class InventoryController implements Initializable {
     }
 
     public int nameCheck(String name) {
-        if (name.equals(""))
+        if (name.isEmpty() || name.equals(""))
             // If empty
             return 1;
         int nameLength = name.length();
@@ -254,7 +343,7 @@ public class InventoryController implements Initializable {
         return 0;
     }
 
-    private String addItemErrorCode(int priceCheck, int serialNumberCheck, int nameCheck) {
+    private String itemErrorCode(int priceCheck, int serialNumberCheck, int nameCheck) {
         String errorCode = "";
         switch (priceCheck) {
             case 1 -> errorCode += "Price is blank. ";
@@ -291,9 +380,8 @@ public class InventoryController implements Initializable {
     }
 
     public void createNewList() {
-        itemModel = new ItemModel();
+        int size = listSize();
+        itemModel.list.remove(0,size);
     }
-
-
 }
 
