@@ -97,7 +97,6 @@ public class InventoryController implements Initializable {
             boolean addCheck = addItem(price, serialNumber, name);
             if (addCheck) {
                 setMessageBox("Item successfully added.");
-                // table.getItems().add(itemModel.list.get(itemModel.list.size() - 1));
                 clearAddBoxes();
                 updateTabs();
             }
@@ -110,7 +109,7 @@ public class InventoryController implements Initializable {
     }
 
     @FXML
-    void deleteItemClicked(ActionEvent event) {
+    void deleteItemClicked() {
         deleteItem();
         setMessageBox("Item successfully deleted.");
         deselect();
@@ -118,7 +117,7 @@ public class InventoryController implements Initializable {
     }
 
     @FXML
-    void editItemClicked(ActionEvent event) {
+    void editItemClicked() {
         String price = fixPrice(getPriceEditBox());
         String serialNumber = setToCaps(getSerialNumberEditBox());
         String name = getNameEditBox();
@@ -142,7 +141,7 @@ public class InventoryController implements Initializable {
     }
 
     @FXML
-    void newButtonClicked(ActionEvent event) {
+    void newButtonClicked() {
         createNewList();
         setMessageBox("New list created.");
         deselect();
@@ -150,7 +149,7 @@ public class InventoryController implements Initializable {
     }
 
     @FXML
-    void loadButtonClicked(ActionEvent event) {
+    void loadButtonClicked() {
         FileChooser fileChooser = new FileChooser();
         File file = fileChooser.showOpenDialog(messageBox.getScene().getWindow());
         String fileName = file.toString();
@@ -175,7 +174,7 @@ public class InventoryController implements Initializable {
     }
 
     @FXML
-    void saveButtonClicked(ActionEvent event) {
+    void saveButtonClicked() {
         if (listSize() >= 1)
         {
             FileChooser fileChooser = new FileChooser();
@@ -207,6 +206,14 @@ public class InventoryController implements Initializable {
             setMessageBox("You need at least one item to save a file.");
     }
 
+    @FXML
+    void updateSelected(MouseEvent mouseEvent) {
+        selected = (ItemModel.Item) table.getSelectionModel().getSelectedItem();
+        if (selected != null)
+            setMessageBox("\"" + selected.getName() + "\" selected.");
+        updateTabs();
+    }
+
     // Initialize the Table
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -234,14 +241,7 @@ public class InventoryController implements Initializable {
         sortedList.comparatorProperty().bind(table.comparatorProperty());
         table.setItems(sortedList);
     }
-
     // FXML Support Methods
-    private void updateSelected(MouseEvent mouseEvent) {
-        selected = (ItemModel.Item) table.getSelectionModel().getSelectedItem();
-        if (selected != null)
-            setMessageBox("\"" + selected.getName() + "\" selected.");
-        updateTabs();
-    }
 
     private void updateTabs() {
         if (itemModel.list.size() >= 1) {
@@ -516,7 +516,7 @@ public class InventoryController implements Initializable {
         return 0;
     }
 
-    private String itemErrorCode(int priceCheck, int serialNumberCheck, int nameCheck) {
+    public String itemErrorCode(int priceCheck, int serialNumberCheck, int nameCheck) {
         String errorCode = "";
         switch (priceCheck) {
             case 1 -> errorCode += "Price is blank. ";

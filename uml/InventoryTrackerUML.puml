@@ -7,6 +7,70 @@ class InventoryTracker {
 
 class InventoryController {
     items: ItemModel
+    item: selected
+    
+    - TableView table;
+    - TableView table;
+    - TableColumn<ItemModel.Item, String> priceColumn;
+    - TableColumn<ItemModel.Item, String> serialNumberColumn;
+    - TableColumn<ItemModel.Item, String> nameColumn;
+    - TabPane tabPane;
+    - Tab addTab;
+    - Tab editTab;
+    - Tab deleteTab;
+    - TextField messageBox;
+    - TextField searchBox;
+    - TextField priceAddBox;
+    - TextField serialNumberAddBox;
+    - TextField nameAddBox;
+    - TextField priceEditBox;
+    - TextField serialNumberEditBox;
+    - TextField nameEditBox;
+    - TextField priceDeleteBox;
+    - TextField serialNumberDeleteBox;
+    - TextField nameDeleteBox;
+
+    addItemClicked();
+    deleteItemClicked();
+    editItemClicked();
+    newButtonClicked();
+    loadButtonClicked();
+    saveButtonClicked();
+    updateSelected();
+
+    + initialize();
+
+    - updateTabs();
+    - clearAddBoxes();
+    - clearEditBoxes();
+    - clearDeleteBoxes();
+    - setMessageBox();
+    - getPriceAddBox();
+    - getSerialNumberAddBox();
+    - getNameAddBox();
+    - getPriceEditBox();
+    - getSerialNumberEditBox();
+    - getNameEditBox();
+
+    + saveAsTsv();
+    + loadAsTsv();
+    + saveAsHtml();
+    + loadAsHtml();
+    + saveAsJson();
+    + loadAsJson();
+    + editItem();
+    + deleteItem();
+    + deselect();
+    + fixPrice();
+    + setToCaps();
+    + priceCheck();
+    + serialNumberCheck();
+    + nameCheck();
+    + itemErrorCode();
+    + addItem();
+    + listSize();
+    + createNewList();
+
 }
 
 class ItemModel {
