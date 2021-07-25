@@ -150,8 +150,8 @@ class InventoryControllerTest {
         InventoryController controller = new InventoryController(); // create new controller
         controller.addItem("24","1234567890","Item 1");  // add an item to the list 
         controller.addItem("36.24", "0987654321", "Item 2");  // add another item to the list
-        controller.saveAsTsv(new File("./src/test/java/ucf/assignments/testFiles/testTxt1.txt")); // run saveAsTsv
-        File newFile = new File("./src/test/java/ucf/assignments/testFiles/testTxt1.txt"); // get file from file path
+        controller.saveAsTsv(new File("./testTxt1.txt")); // run saveAsTsv
+        File newFile = new File("./testTxt1.txt"); // get file from file path
         assertTrue(newFile.exists()); // test that file exists
         boolean deleted = newFile.delete(); // delete the file and get the return value
         assertTrue(deleted); // test that the file was deleted
@@ -162,8 +162,8 @@ class InventoryControllerTest {
         InventoryController controller = new InventoryController(); // create new controller
         controller.addItem("24","1234567890","Item 1");  // add an item to the list
         controller.addItem("36.24", "0987654321", "Item 2");  // add another item to the list
-        controller.saveAsTsv(new File("./src/test/java/ucf/assignments/testFiles/testTxt2.txt")); // run saveAsTsv
-        File newFile = new File("./src/test/java/ucf/assignments/testFiles/testTxt2.txt"); // get file from file path
+        controller.saveAsTsv(new File("./testTxt2.txt")); // run saveAsTsv
+        File newFile = new File("./testTxt2.txt"); // get file from file path
         boolean deleted = newFile.delete(); // delete the file and get the return value
         assertTrue(deleted); // test that the file was deleted
         controller.loadAsTsv(newFile); // run loadAsTsv
@@ -176,8 +176,8 @@ class InventoryControllerTest {
         InventoryController controller = new InventoryController(); // create new controller
         controller.addItem("24","1234567890","Item 1");  // add an item to the list
         controller.addItem("36.24", "0987654321", "Item 2");  // add another item to the list
-        controller.saveAsHtml(new File("./src/test/java/ucf/assignments/testFiles/testHtml1.html")); // run saveAsHtml
-        File newFile = new File("./src/test/java/ucf/assignments/testFiles/testHtml1.html"); // get file from file path
+        controller.saveAsHtml(new File("./testHtml1.html")); // run saveAsHtml
+        File newFile = new File("./testHtml1.html"); // get file from file path
         assertTrue(newFile.exists()); // test that file exists
         boolean deleted = newFile.delete(); // delete the file and get the return value
         assertTrue(deleted); // test that the file was deleted
@@ -188,8 +188,8 @@ class InventoryControllerTest {
         InventoryController controller = new InventoryController(); // create new controller
         controller.addItem("24","1234567890","Item 1");  // add an item to the list
         controller.addItem("36.24", "0987654321", "Item 2");  // add another item to the list
-        controller.saveAsHtml(new File("./src/test/java/ucf/assignments/testFiles/testHtml2.html")); // run saveAsHtml
-        File newFile = new File("./src/test/java/ucf/assignments/testFiles/testHtml2.html"); // get file from file path
+        controller.saveAsHtml(new File("./testHtml2.html")); // run saveAsHtml
+        File newFile = new File("./testHtml2.html"); // get file from file path
         boolean deleted = newFile.delete(); // delete the file and get the return value
         assertTrue(deleted); // test that the file was deleted
         controller.loadAsHtml(newFile); // run loadAsHtml
@@ -202,8 +202,8 @@ class InventoryControllerTest {
         InventoryController controller = new InventoryController(); // create new controller
         controller.addItem("24","1234567890","Item 1");  // add an item to the list
         controller.addItem("36.24", "0987654321", "Item 2");  // add another item to the list
-        controller.saveAsJson(new File("./src/test/java/ucf/assignments/testFiles/testJson1.json")); // run saveAsJson
-        File newFile = new File("./src/test/java/ucf/assignments/testFiles/testJson1.json"); // get file from file path
+        controller.saveAsJson(new File("./testJson1.json")); // run saveAsJson
+        File newFile = new File("./testJson1.json"); // get file from file path
         assertTrue(newFile.exists()); // test that file exists
         boolean deleted = newFile.delete(); // delete the file and get the return value
         assertTrue(deleted); // test that the file was deleted
@@ -214,8 +214,8 @@ class InventoryControllerTest {
         InventoryController controller = new InventoryController(); // create new controller
         controller.addItem("24","1234567890","Item 1");  // add an item to the list
         controller.addItem("36.24", "0987654321", "Item 2");  // add another item to the list
-        controller.saveAsJson(new File("./src/test/java/ucf/assignments/testFiles/testJson2.json")); // run saveAsJson
-        File newFile = new File("./src/test/java/ucf/assignments/testFiles/testJson2.json"); // get file from file path
+        controller.saveAsJson(new File("./testJson2.json")); // run saveAsJson
+        File newFile = new File("./testJson2.json"); // get file from file path
         boolean deleted = newFile.delete(); // delete the file and get the return value
         assertTrue(deleted); // test that the file was deleted
         controller.loadAsJson(newFile); // run loadAsJson
