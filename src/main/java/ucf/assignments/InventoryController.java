@@ -8,10 +8,17 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.FileChooser;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
+import java.io.*;
 import java.net.URL;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.Scanner;
 
 public class InventoryController implements Initializable {
 
@@ -88,7 +95,7 @@ public class InventoryController implements Initializable {
         int nameCheck = nameCheck(name);
         if (priceCheck == 0 && serialNumberCheck == 0 && nameCheck == 0) {
             boolean addCheck = addItem(price, serialNumber, name);
-            if (addCheck == true) {
+            if (addCheck) {
                 setMessageBox("Item successfully added.");
                 // table.getItems().add(itemModel.list.get(itemModel.list.size() - 1));
                 clearAddBoxes();
@@ -123,7 +130,7 @@ public class InventoryController implements Initializable {
         if (serialNumberCheck == 4)
             serialNumberCheck = 0;
 
-        if (priceCheck == 0 && (serialNumberCheck == 0 || serialNumberCheck == 4) && nameCheck == 0) {
+        if (priceCheck == 0 && serialNumberCheck == 0 && nameCheck == 0) {
             editItem(price, serialNumber, name);
             setMessageBox("Item successfully edited.");
             deselect();
@@ -144,48 +151,95 @@ public class InventoryController implements Initializable {
 
     @FXML
     void loadButtonClicked(ActionEvent event) {
-
+        FileChooser fileChooser = new FileChooser();
+        File file = fileChooser.showOpenDialog(messageBox.getScene().getWindow());
+        String fileName = file.toString();
+        int index = fileName.lastIndexOf(".");
+        if (index > 0)
+        {
+            String extension = fileName.substring(index + 1);
+            boolean saveCheck;
+            switch (extension) {
+                case "txt" -> saveCheck = loadAsTsv(file);
+                case "html" -> saveCheck = loadAsHtml(file);
+                case "json" -> saveCheck = loadAsJson(file);
+                default -> saveCheck = false;
+            }
+            if (saveCheck) {
+                setMessageBox("File successfully loaded.");
+                updateTabs();
+            }
+            else
+                setMessageBox("Error loading file.");
+        }
     }
 
     @FXML
     void saveButtonClicked(ActionEvent event) {
-
+        if (listSize() >= 1)
+        {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setInitialFileName("InventoryManager");
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("TSV File", "*.txt"),
+                    new FileChooser.ExtensionFilter("Web Page", "*.html"),
+                    new FileChooser.ExtensionFilter("JSON File", "*.json"));
+            File file = fileChooser.showSaveDialog(messageBox.getScene().getWindow());
+            String fileName = file.toString();
+            int index = fileName.lastIndexOf(".");
+            if (index > 0)
+            {
+                String extension = fileName.substring(index + 1);
+                boolean saveCheck;
+                switch (extension) {
+                    case "txt" -> saveCheck = saveAsTsv(file);
+                    case "html" -> saveCheck = saveAsHtml(file);
+                    case "json" -> saveCheck = saveAsJson(file);
+                    default -> saveCheck = false;
+                }
+                if (saveCheck)
+                    setMessageBox("File successfully saved.");
+                else
+                    setMessageBox("Error saving file.");
+            }
+        }
+        else
+            setMessageBox("You need at least one item to save a file.");
     }
 
     // Initialize the Table
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
         serialNumberColumn.setCellValueFactory(new PropertyValueFactory<>("serialNumber"));
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
 
+        // Allows for searching
         FilteredList<ItemModel.Item> filteredList = new FilteredList<>(itemModel.list, b -> true);
-        searchBox.textProperty().addListener((observable, oldValue, newValue) -> {
-            filteredList.setPredicate(itemModel -> {
-                if (newValue == null || newValue.isEmpty())
-                    return true;
-                String lowerCaseFilter = newValue.toLowerCase();
-                if (String.valueOf(itemModel.getName()).toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                } else if (String.valueOf(itemModel.getPrice()).toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                } else if (String.valueOf(itemModel.getSerialNumber()).toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                } else {
-                    return false;
-                }
-            });
-        });
+        searchBox.textProperty().addListener((observable, oldValue, newValue) -> filteredList.setPredicate(itemModel -> {
+            if (newValue == null || newValue.isEmpty())
+                return true;
+            String lowerCaseFilter = newValue.toLowerCase();
+            if (String.valueOf(itemModel.getName()).toLowerCase().contains(lowerCaseFilter)) {
+                return true;
+            } else if (String.valueOf(itemModel.getPrice()).toLowerCase().contains(lowerCaseFilter)) {
+                return true;
+            } else if (String.valueOf(itemModel.getSerialNumber()).toLowerCase().contains(lowerCaseFilter)) {
+                return true;
+            } else {
+                return false;
+            }
+        }));
         SortedList<ItemModel.Item> sortedList = new SortedList<>(filteredList);
         sortedList.comparatorProperty().bind(table.comparatorProperty());
         table.setItems(sortedList);
     }
-    // FXML Support Methods
 
-    public void updateSelected(MouseEvent mouseEvent) {
+    // FXML Support Methods
+    private void updateSelected(MouseEvent mouseEvent) {
         selected = (ItemModel.Item) table.getSelectionModel().getSelectedItem();
-        setMessageBox("\"" + selected.getName() + "\" selected.");
+        if (selected != null)
+            setMessageBox("\"" + selected.getName() + "\" selected.");
         updateTabs();
     }
 
@@ -261,6 +315,125 @@ public class InventoryController implements Initializable {
     }
 
     // Non-FXML Testable Methods
+    public boolean saveAsTsv(File file) {
+        try {
+            FileWriter fileWriter = new FileWriter(file);
+            for (int i = 0; i < listSize(); i++)
+            {
+                fileWriter.write(itemModel.list.get(i).getPrice() + "\t" + itemModel.list.get(i).getSerialNumber() + "\t" + itemModel.list.get(i).getName() + "\n");
+            }
+            fileWriter.close();
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    public boolean loadAsTsv(File file) {
+        try {
+            Scanner input = new Scanner(file);
+            createNewList();
+            while(input.hasNextLine())
+            {
+                ItemModel.Item item = itemModel.new Item();
+                item.setPrice(String.valueOf(input.next()).replace("\t",""));
+                item.setSerialNumber(String.valueOf(input.next()).replace("\t",""));
+                item.setName(input.nextLine().replace("\t","").replace("\n",""));
+                itemModel.list.add(item);
+            }
+            return true;
+        } catch (FileNotFoundException e){
+            return false;
+        }
+    }
+
+    public boolean saveAsHtml(File file) {
+        try {
+            FileWriter fileWriter = new FileWriter(file);
+            fileWriter.write("<body>\n");
+            for (int i = 0; i < listSize(); i++)
+                fileWriter.write("<p><span>" + itemModel.list.get(i).getPrice() + "</span>\t<span>" + itemModel.list.get(i).getSerialNumber() + "</span>\t<span>" + itemModel.list.get(i).getName() + "</span></p>");
+            fileWriter.write("</body>");
+            fileWriter.close();
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    public boolean loadAsHtml(File file) {
+        try {
+            Scanner input = new Scanner(file);
+            createNewList();
+            String htmlText = "";
+            while(input.hasNextLine())
+                htmlText += input.nextLine();
+            Document doc = Jsoup.parseBodyFragment(htmlText);
+            Elements pTags = doc.select("p");
+            for (Element pTag : pTags)
+            {
+                Elements spans = pTag.select("span");
+                ItemModel.Item item = itemModel.new Item();
+                item.setPrice(spans.get(0).text());
+                item.setSerialNumber(spans.get(1).text());
+                item.setName(spans.get(2).text());
+                itemModel.list.add(item);
+            }
+            return true;
+        } catch (FileNotFoundException e){
+            return false;
+        }
+    }
+
+    public boolean saveAsJson(File file) {
+        try {
+            FileWriter fileWriter = new FileWriter(file);
+            String text = "{\n \"items\":[\n";
+            for (int i = 0; i < listSize(); i++)
+            {
+                String newItem = "  {\n   \"price\":\"" + itemModel.list.get(i).getPrice() + "\",\n";
+                newItem += "   \"serial number\":\"" + itemModel.list.get(i).getSerialNumber() + "\",\n";
+                newItem += "   \"name\":\"" + itemModel.list.get(i).getName() + "\"\n";
+                if (i != listSize() - 1)
+                    newItem += "  },\n";
+                else
+                    newItem += "  }\n";
+                text += newItem;
+            }
+            text += " ]\n}";
+            fileWriter.write(text);
+            fileWriter.close();
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    public boolean loadAsJson(File file) {
+        try {
+            Scanner input = new Scanner(file);
+            createNewList();
+            int elements = (int) input.findAll("\"price\"").count();
+            input.close();
+            input = new Scanner(file);
+            for (int i = 0; i < elements; i++)
+            {
+                ItemModel.Item item = itemModel.new Item();
+                while (input.findInLine("\"price\":") == null)
+                    input.nextLine();
+                item.setPrice(input.nextLine().replace("\"","").replace(",",""));
+                input.findInLine("\"serial number\":");
+                item.setSerialNumber(input.nextLine().replace("\"","").replace(",",""));
+                input.findInLine("\"name\":");
+                item.setName(input.nextLine().replace("\"",""));
+                itemModel.list.add(item);
+            }
+            return true;
+        } catch (FileNotFoundException e){
+            return false;
+        }
+    }
+
     public void editItem(String price, String serialNumber, String name) {
         itemModel.list.get(itemModel.list.indexOf(selected)).setPrice(price);
         itemModel.list.get(itemModel.list.indexOf(selected)).setSerialNumber(serialNumber);
@@ -293,7 +466,7 @@ public class InventoryController implements Initializable {
     }
 
     public int priceCheck(String price) {
-        if (price.isEmpty() || price.equals(""))
+        if (price.isEmpty())
             // If empty
             return 1;
         int size = price.length();
@@ -308,7 +481,7 @@ public class InventoryController implements Initializable {
     }
 
     public int serialNumberCheck(String serialNumber) {
-        if (serialNumber.isEmpty() || serialNumber.equals(""))
+        if (serialNumber.isEmpty())
             // If empty
             return 1;
         int size = serialNumber.length();
@@ -333,7 +506,7 @@ public class InventoryController implements Initializable {
     }
 
     public int nameCheck(String name) {
-        if (name.isEmpty() || name.equals(""))
+        if (name.isEmpty())
             // If empty
             return 1;
         int nameLength = name.length();
